@@ -4,83 +4,182 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Épargne App</title>
+  <title>Mon Épargne 2025</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #0e0e1a;
-      color: white;
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #0d1117;
+      color: #f0f6fc;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #58a6ff;
     }
     .container {
-      max-width: 900px;
+      max-width: 600px;
       margin: auto;
     }
-    .table-wrapper {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      margin-top: 1rem;
-      border-radius: 8px;
+    select, input, button {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 0.8rem;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #2ea043;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #238636;
     }
     table {
       width: 100%;
-      min-width: 600px;
       border-collapse: collapse;
-      background: #1c1c2e;
-      color: white;
+      margin-top: 2rem;
     }
     th, td {
-      padding: 10px;
+      border: 1px solid #30363d;
+      padding: 0.6rem;
       text-align: center;
-      white-space: nowrap;
-      border-bottom: 1px solid #333;
     }
     th {
-      background: #2a2a40;
+      background-color: #161b22;
     }
-
-    @media (max-width: 768px) {
-      table {
-        width: max-content;
-      }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
     }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
+    .actions button {
+      flex: 1;
+      background-color: #21262d;
+    }
+    .actions button:hover {
+      background-color: #30363d;
+    }
+    canvas {
+      margin-top: 2rem;
+      width: 100% !important;
+      height: auto !important;
     }
   </style>
 </head>
 <body>
+  <h1>📊 Mon Épargne 2025</h1>
   <div class="container">
-    <h1>Mon Épargne 2025</h1>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Mois</th>
-            <th>Revenu</th>
-            <th>Dépenses</th>
-            <th>Épargne</th>
-            <th>Investi</th>
-            <th>Intérêts</th>
-            <th>Capital</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Janvier</td>
-            <td>2500 €</td>
-            <td>500 €</td>
-            <td>2000 €</td>
-            <td>0 €</td>
-            <td>40 €</td>
-            <td>5540 €</td>
-          </tr>
-        </tbody>
-      </table>
+    <label>Mois :</label>
+    <select id="mois">
+      <option>Janvier</option><option>Février</option><option>Mars</option><option>Avril</option>
+      <option>Mai</option><option>Juin</option><option>Juillet</option><option>Août</option>
+      <option>Septembre</option><option>Octobre</option><option>Novembre</option><option>Décembre</option>
+    </select>
+    <input type="number" id="revenu" placeholder="Revenu (€)" />
+    <input type="number" id="depenses" placeholder="Dépenses (€) (non déduites)" />
+    <input type="number" id="epargne" placeholder="Épargne (€)" />
+    <input type="number" id="investi" placeholder="Investi (€)" />
+    <button onclick="ajouterDonnees()">Ajouter</button>
+    <div class="actions">
+      <button onclick="resetMois()">🔁 Réinitialiser mois</button>
+      <button onclick="resetCapital()">💣 Capital à 1500€</button>
+      <button onclick="ouvrirApp('trade')">📱 Trade Republic</button>
+      <button onclick="ouvrirApp('revolut')">💳 Revolut</button>
     </div>
+
+    <table id="historique">
+      <thead>
+        <tr><th>Mois</th><th>Revenu</th><th>Dépenses</th><th>Épargne</th><th>Investi</th><th>Intérêts</th><th>Capital</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <canvas id="chart"></canvas>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let capital = 1500;
+    const historique = {};
+
+    function ajouterDonnees() {
+      const mois = document.getElementById("mois").value;
+      const revenu = parseFloat(document.getElementById("revenu").value || 0);
+      const depenses = parseFloat(document.getElementById("depenses").value || 0);
+      const epargne = parseFloat(document.getElementById("epargne").value || 0);
+      const investi = parseFloat(document.getElementById("investi").value || 0);
+      if (historique[mois]) return alert("Ce mois a déjà été ajouté.");
+      const interet = parseFloat((capital * 0.02).toFixed(2));
+      capital += epargne + interet;
+      historique[mois] = { revenu, depenses, epargne, investi, interet, capital: capital.toFixed(2) };
+      majTableau();
+      majGraphique();
+    }
+
+    function resetMois() {
+      const mois = document.getElementById("mois").value;
+      delete historique[mois];
+      majTableau();
+      majGraphique();
+    }
+
+    function resetCapital() {
+      capital = 1500;
+      for (let key in historique) delete historique[key];
+      majTableau();
+      majGraphique();
+    }
+
+    function majTableau() {
+      const tbody = document.querySelector("#historique tbody");
+      tbody.innerHTML = "";
+      for (const mois in historique) {
+        const d = historique[mois];
+        tbody.innerHTML += `<tr>
+          <td>${mois}</td><td>${d.revenu} €</td><td>${d.depenses} €</td><td>${d.epargne} €</td>
+          <td>${d.investi} €</td><td>+${d.interet} €</td><td>${d.capital} €</td>
+        </tr>`;
+      }
+    }
+
+    let chart;
+    function majGraphique() {
+      const ctx = document.getElementById("chart").getContext("2d");
+      if (chart) chart.destroy();
+      const labels = Object.keys(historique);
+      const data = Object.values(historique).map(d => d.capital);
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{ label: "Capital (€)", data, backgroundColor: "#3b82f6" }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function ouvrirApp(app) {
+      if (app === "trade") {
+        window.location.href = "traderepublic://";
+        setTimeout(() => window.open("https://traderepublic.com", "_blank"), 500);
+      } else {
+        window.location.href = "revolut://";
+        setTimeout(() => window.open("https://revolut.com", "_blank"), 500);
+      }
+    }
+  </script>
 </body>
 </html>
