@@ -105,7 +105,26 @@
       margin-top: 1rem;
       font-size: 1.1rem;
     }
-  </style>
+  
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 600px;
+}
+
+table th, table td {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  white-space: nowrap;
+}
+</style>
 </head>
 <body>
 <div id="lockScreen">
@@ -151,6 +170,7 @@
       </thead>
       <tbody></tbody>
     </table>
+</div>
     <canvas id="chart"></canvas>
   </div>
 
