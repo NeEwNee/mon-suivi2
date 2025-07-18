@@ -3,183 +3,306 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mon Épargne 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon Épargne Pro</title>
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --bg: #0f172a;
+      --fg: #f8fafc;
+      --accent: #3b82f6;
+      --card: #1e293b;
+      --highlight: #22c55e;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
     }
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #0d1117;
-      color: #f0f6fc;
-      padding: 1rem;
-    }
-    h1 {
+    header {
+      background: var(--accent);
+      color: white;
       text-align: center;
-      margin-bottom: 1rem;
-      color: #58a6ff;
+      padding: 1rem;
+      font-size: 1.8rem;
     }
     .container {
-      max-width: 600px;
+      max-width: 900px;
       margin: auto;
+      padding: 2rem;
     }
-    select, input, button {
+    .card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select, button {
       width: 100%;
-      padding: 0.6rem;
-      margin-bottom: 0.8rem;
-      border-radius: 5px;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border-radius: 0.5rem;
       border: none;
       font-size: 1rem;
     }
     button {
-      background-color: #2ea043;
+      margin-top: 1rem;
+      background: var(--highlight);
       color: white;
-      font-weight: bold;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #238636;
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .actions button {
+      flex: 1;
+      background: #334155;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 2rem;
+      margin-top: 1.5rem;
     }
     th, td {
-      border: 1px solid #30363d;
-      padding: 0.6rem;
+      padding: 0.75rem;
       text-align: center;
-    }
-    th {
-      background-color: #161b22;
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    .actions button {
-      flex: 1;
-      background-color: #21262d;
-    }
-    .actions button:hover {
-      background-color: #30363d;
+      border-bottom: 1px solid #475569;
     }
     canvas {
+      width: 100%;
+      max-height: 300px;
       margin-top: 2rem;
-      width: 100% !important;
-      height: auto !important;
     }
-  </style>
+    .interet {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    #lockScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #000000f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+    #lockScreen input {
+      width: 120px;
+      font-size: 1.5rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    #simulationResult {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+  
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 600px;
+}
+
+table th, table td {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  white-space: nowrap;
+}
+</style>
 </head>
 <body>
-  <h1>📊 Mon Épargne 2025</h1>
-  <div class="container">
-    <label>Mois :</label>
-    <select id="mois">
-      <option>Janvier</option><option>Février</option><option>Mars</option><option>Avril</option>
-      <option>Mai</option><option>Juin</option><option>Juillet</option><option>Août</option>
-      <option>Septembre</option><option>Octobre</option><option>Novembre</option><option>Décembre</option>
-    </select>
-    <input type="number" id="revenu" placeholder="Revenu (€)" />
-    <input type="number" id="depenses" placeholder="Dépenses (€) (non déduites)" />
-    <input type="number" id="epargne" placeholder="Épargne (€)" />
-    <input type="number" id="investi" placeholder="Investi (€)" />
-    <button onclick="ajouterDonnees()">Ajouter</button>
-    <div class="actions">
-      <button onclick="resetMois()">🔁 Réinitialiser mois</button>
-      <button onclick="resetCapital()">💣 Capital à 1500€</button>
-      <button onclick="ouvrirApp('trade')">📱 Trade Republic</button>
-      <button onclick="ouvrirApp('revolut')">💳 Revolut</button>
-    </div>
+<div id="lockScreen">
+  <h2>🔐 Entrez votre code PIN</h2>
+  <input type="password" maxlength="4" id="pinInput" placeholder="••••" autofocus />
+  <p id="pinError" style="color:red;display:none;">Code incorrect</p>
+</div>
 
+<header>📈 Mon Épargne Pro – 2025</header>
+<div class="container" style="display:none;" id="app">
+  <div class="card">
+    <label>Mois :</label>
+    <select id="mois"></select>
+
+    <label>Revenu (€)</label>
+    <input id="revenu" type="number" />
+
+    <label>Dépenses (€)</label>
+    <input id="depenses" type="number" />
+
+    <label>Épargne (€)</label>
+    <input id="epargne" type="number" />
+
+    <label>Investi (€)</label>
+    <input id="investi" type="number" />
+
+    <button onclick="ajouter()">Ajouter</button>
+    <div class="actions">
+      <button onclick="resetMois()">♻️ Réinitialiser mois</button>
+      <button onclick="resetCapital()">💥 Capital à 1500 €</button>
+      <button onclick="openApp('traderepublic')">Trade Republic 📱</button>
+      <button onclick="openApp('revolut')">Revolut 💳</button>
+    </div>
+  </div>
+
+  <div class="card">
     <table id="historique">
       <thead>
-        <tr><th>Mois</th><th>Revenu</th><th>Dépenses</th><th>Épargne</th><th>Investi</th><th>Intérêts</th><th>Capital</th></tr>
+        <tr>
+          <th>Mois</th><th>Revenu</th><th>Dépenses</th><th>Épargne</th>
+          <th>Investi</th><th>Intérêts</th><th>Capital</th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
-
+</div>
     <canvas id="chart"></canvas>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    let capital = 1500;
-    const historique = {};
+  <div class="card">
+    <h3>📊 Simulation de capital futur</h3>
+    <label>Montant épargné chaque mois (€)</label>
+    <input id="simulEpargne" type="number" value="200" />
+    <label>Sur combien de mois ?</label>
+    <input id="simulMois" type="number" value="12" />
+    <button onclick="simuler()">Simuler</button>
+    <div id="simulationResult"></div>
+  </div>
+</div>
 
-    function ajouterDonnees() {
-      const mois = document.getElementById("mois").value;
-      const revenu = parseFloat(document.getElementById("revenu").value || 0);
-      const depenses = parseFloat(document.getElementById("depenses").value || 0);
-      const epargne = parseFloat(document.getElementById("epargne").value || 0);
-      const investi = parseFloat(document.getElementById("investi").value || 0);
-      if (historique[mois]) return alert("Ce mois a déjà été ajouté.");
-      const interet = parseFloat((capital * 0.02).toFixed(2));
-      capital += epargne + interet;
-      historique[mois] = { revenu, depenses, epargne, investi, interet, capital: capital.toFixed(2) };
-      majTableau();
-      majGraphique();
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const pinSecret = "1234";
+const lockScreen = document.getElementById("lockScreen");
+const app = document.getElementById("app");
+const inputPIN = document.getElementById("pinInput");
+const pinError = document.getElementById("pinError");
+inputPIN.addEventListener("keyup", (e) => {
+  if (e.key === "Enter") {
+    if (inputPIN.value === pinSecret) {
+      lockScreen.style.display = "none";
+      app.style.display = "block";
+    } else {
+      pinError.style.display = "block";
     }
+  }
+});
 
-    function resetMois() {
-      const mois = document.getElementById("mois").value;
-      delete historique[mois];
-      majTableau();
-      majGraphique();
-    }
+const moisFixes = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+const moisSelect = document.getElementById("mois");
+let capital = parseFloat(localStorage.getItem("capital")) || 1500;
+let historique = JSON.parse(localStorage.getItem("historique")) || [];
 
-    function resetCapital() {
-      capital = 1500;
-      for (let key in historique) delete historique[key];
-      majTableau();
-      majGraphique();
-    }
+moisFixes.forEach((m, i) => {
+  const opt = document.createElement("option");
+  opt.value = m;
+  opt.text = m;
+  if (new Date().getMonth() === i) opt.selected = true;
+  moisSelect.appendChild(opt);
+});
 
-    function majTableau() {
-      const tbody = document.querySelector("#historique tbody");
-      tbody.innerHTML = "";
-      for (const mois in historique) {
-        const d = historique[mois];
-        tbody.innerHTML += `<tr>
-          <td>${mois}</td><td>${d.revenu} €</td><td>${d.depenses} €</td><td>${d.epargne} €</td>
-          <td>${d.investi} €</td><td>+${d.interet} €</td><td>${d.capital} €</td>
-        </tr>`;
-      }
-    }
+function ajouter() {
+  console.log('✅ Fonction ajouter exécutée');
+  const mois = moisSelect.value;
+  const revenu = parseFloat(document.getElementById("revenu").value) || 0;
+  const depenses = parseFloat(document.getElementById("depenses").value) || 0;
+  const epargne = parseFloat(document.getElementById("epargne").value) || 0;
+  const investi = parseFloat(document.getElementById("investi").value) || 0;
+  const interets = capital * 0.02;
+  capital += epargne + interets;
+  const data = { mois, revenu, depenses, epargne, investi, interets, capital: parseFloat(capital.toFixed(2)) };
+  const i = historique.findIndex(m => m.mois === mois);
+  if (i !== -1) historique[i] = data; else historique.push(data);
+  localStorage.setItem("capital", capital.toFixed(2));
+  localStorage.setItem("historique", JSON.stringify(historique));
+  afficher(); resetInputs();
+}
 
-    let chart;
-    function majGraphique() {
-      const ctx = document.getElementById("chart").getContext("2d");
-      if (chart) chart.destroy();
-      const labels = Object.keys(historique);
-      const data = Object.values(historique).map(d => d.capital);
-      chart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{ label: "Capital (€)", data, backgroundColor: "#3b82f6" }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
+function afficher() {
+  const tbody = document.querySelector("#historique tbody");
+  tbody.innerHTML = "";
+  const tri = moisFixes.map(m => historique.find(h => h.mois === m)).filter(Boolean);
+  tri.forEach(d => {
+    tbody.innerHTML += `<tr>
+      <td>${d.mois}</td><td>${d.revenu} €</td><td>${d.depenses} €</td>
+      <td>${d.epargne} €</td><td>${d.investi} €</td>
+      <td class='interet'>+${d.interets.toFixed(2)} €</td>
+      <td><b>${d.capital.toFixed(2)} €</b></td>
+    </tr>`;
+  });
+  renderChart(tri);
+}
 
-    function ouvrirApp(app) {
-      if (app === "trade") {
-        window.location.href = "traderepublic://";
-        setTimeout(() => window.open("https://traderepublic.com", "_blank"), 500);
-      } else {
-        window.location.href = "revolut://";
-        setTimeout(() => window.open("https://revolut.com", "_blank"), 500);
-      }
-    }
-  </script>
+function renderChart(data) {
+  const ctx = document.getElementById('chart').getContext('2d');
+  if (window.myChart) window.myChart.destroy();
+  window.myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.mois),
+      datasets: [{
+        label: 'Capital (€)',
+        data: data.map(d => d.capital),
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.2
+      }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: false } } }
+  });
+}
+
+function simuler() {
+  const epargne = parseFloat(document.getElementById("simulEpargne").value) || 0;
+  const mois = parseInt(document.getElementById("simulMois").value) || 1;
+  let total = capital;
+  for (let i = 0; i < mois; i++) total = (total + epargne) * 1.02;
+  document.getElementById("simulationResult").innerText = `📈 Capital estimé dans ${mois} mois : ${total.toFixed(2)} €`;
+}
+
+function resetCapital() {
+  capital = 1500;
+  localStorage.setItem("capital", capital.toFixed(2));
+  alert("Capital remis à 1500 €");
+  afficher();
+}
+
+function resetMois() {
+  const mois = moisSelect.value;
+  historique = historique.filter(m => m.mois !== mois);
+  localStorage.setItem("historique", JSON.stringify(historique));
+  afficher();
+}
+
+function resetInputs() {
+  ["revenu", "depenses", "epargne", "investi"].forEach(id => document.getElementById(id).value = "");
+}
+
+function openApp(app) {
+  const urls = { traderepublic: "traderepublic://", revolut: "revolut://" };
+  const fallback = { traderepublic: "https://traderepublic.com", revolut: "https://revolut.com" };
+  window.location = urls[app];
+  setTimeout(() => window.open(fallback[app], "_blank"), 500);
+}
+
+afficher();
+</script>
 </body>
 </html>
