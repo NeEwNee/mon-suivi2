@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mon Épargne Pro</title>
+  <title> Épargne Thomas </title>
   <style>
     :root {
       --bg: #0f172a;
@@ -105,16 +105,35 @@
       margin-top: 1rem;
       font-size: 1.1rem;
     }
-  </style>
+  
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 600px;
+}
+
+table th, table td {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  white-space: nowrap;
+}
+</style>
 </head>
 <body>
 <div id="lockScreen">
-  <h2>🔐 Entrez votre code PIN</h2>
+  <h2>🔐 Entre le  code PIN</h2>
   <input type="password" maxlength="4" id="pinInput" placeholder="••••" autofocus />
   <p id="pinError" style="color:red;display:none;">Code incorrect</p>
 </div>
 
-<header>📈 Mon Épargne Pro – 2025</header>
+<header>📈 Mon Épargne  – 2025</header>
 <div class="container" style="display:none;" id="app">
   <div class="card">
     <label>Mois :</label>
@@ -142,7 +161,8 @@
   </div>
 
   <div class="card">
-    <table id="historique">
+    <div class="table-container">
+        <table id="historique">
       <thead>
         <tr>
           <th>Mois</th><th>Revenu</th><th>Dépenses</th><th>Épargne</th>
@@ -151,6 +171,7 @@
       </thead>
       <tbody></tbody>
     </table>
+    </div>
     <canvas id="chart"></canvas>
   </div>
 
